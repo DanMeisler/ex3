@@ -1,18 +1,18 @@
 import numpy as np
 import argparse
 
-BLANK_CHARACTER = ' '
+BLANK_PHONEME = ' '
 
 
 class CTC(object):
     def __init__(self, y, alphabet):
         assert y.shape[1] == len(alphabet) + 1, "output matrix doesnt match alphabet"
         self._y = y
-        self._alphabet = alphabet + [BLANK_CHARACTER]
+        self._alphabet = alphabet + [BLANK_PHONEME]
         self._z = None
 
     def forward(self, p):
-        self._z = [BLANK_CHARACTER] + list(' '.join(p)) + [BLANK_CHARACTER]
+        self._z = [BLANK_PHONEME] + list(' '.join(p)) + [BLANK_PHONEME]
         return (self._get_alpha(len(self._z) - 1, self._y.shape[0] - 1) +
                 self._get_alpha(len(self._z) - 2, self._y.shape[0] - 1))
 
@@ -25,16 +25,16 @@ class CTC(object):
         if s == 0:
             return self._get_alpha(s, t - 1) * self._get_y_probability(t, self._z[s])
 
-        if (s == 1) or (self._z[s] == BLANK_CHARACTER) or (self._z[s] == self._z[s - 2]):
+        if (s == 1) or (self._z[s] == BLANK_PHONEME) or (self._z[s] == self._z[s - 2]):
             return (self._get_alpha(s - 1, t - 1) + self._get_alpha(s, t - 1)) * self._get_y_probability(t, self._z[s])
 
         return (self._get_alpha(s - 2, t - 1) + self._get_alpha(s - 1, t - 1) +
                 self._get_alpha(s, t - 1)) * self._get_y_probability(t, self._z[s])
 
-    def _get_y_probability(self, t, pi):
-        assert pi in self._alphabet, "%c not in the alphabet" % pi
+    def _get_y_probability(self, t, phoneme):
+        assert phoneme in self._alphabet, "%c not in the alphabet" % phoneme
         assert t <= self._y.shape[0], "output matrix has no %dth, max is %d" % (t, self._y.shape[0])
-        return self._y[t, self._alphabet.index(pi)]
+        return self._y[t, self._alphabet.index(phoneme)]
 
 
 def parse_args():
