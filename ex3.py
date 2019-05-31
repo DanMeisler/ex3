@@ -3,7 +3,8 @@ import argparse
 
 
 def assert_input(y, p, alphabet):
-    assert y.shape[0] == len(p), "output matrix doesnt match phonemes to be classified"
+    assert y.shape[0] >= len(p), "output matrix doesnt match phonemes to be classified"
+    assert y.shape[1] == len(alphabet) + 1, "output matrix doesnt match alphabet to be classified"
 
 
 def load_output_matrix(net_output_path):
